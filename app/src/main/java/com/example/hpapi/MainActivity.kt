@@ -1,28 +1,38 @@
 package com.example.hpapi
 
-import android.content.ContentValues.TAG
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        viewModelStore
-        val result = NetworkManager.HPApi.getHPList("harry potter")
-        result.enqueue(object : Callback<List<CharacterItemsItem>> {
-            override fun onResponse(call: Call<List<CharacterItemsItem>>, response: Response<List<CharacterItemsItem>>) {
-                Log.d(TAG, "onResponse: ${response.body()}")
-            }
 
-            override fun onFailure(call: Call<List<CharacterItemsItem>>, t: Throwable) {
-                Log.d(TAG, "onFailure: ${t.message}")
-            }
-        })
+        val result = NetworkManager.HPApi.getHPList()
+        val recycler = findViewById<RecyclerView>(R.id.recyclerViewID)
+        val recyclerViewAdapter = RecyclerViewAdapter()
+        recycler.adapter = recyclerViewAdapter
+
+        lifecycleScope.launch {
+            val response = getResult(result)
+            recyclerViewAdapter.submitList(response)
+        }
+
+    }
+
+    private suspend fun getResult(result: Call<List<CharacterItemsItem>>): List<CharacterItemsItem> = runBlocking {
+        var listHp: List<CharacterItemsItem> = emptyList()
+        launch(Dispatchers.IO) {
+            listHp = result.execute().body()!!
+        }.join()
+        listHp
     }
 }
-// 장 데이터 받아서
+
