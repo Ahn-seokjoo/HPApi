@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 
 object NetworkManager {
-    private const val BASE_URL = "https://hp-api.herokuapp.com/api/characters/"
+    private const val BASE_URL = "https://hp-api.herokuapp.com/"
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
