@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 
 class MainActivity : AppCompatActivity() {
@@ -27,12 +27,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private suspend fun getResult(result: Call<List<CharacterItemsItem>>): List<CharacterItemsItem> = runBlocking {
+    private suspend fun getResult(result: Call<List<CharacterItemsItem>>): List<CharacterItemsItem> {
         var listHp: List<CharacterItemsItem> = emptyList()
-        launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             listHp = result.execute().body()!!
         }.join()
-        listHp
+        return listHp
     }
 }
 
